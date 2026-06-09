@@ -201,6 +201,9 @@ commands:
       - "limpiar todo"
       - "nuevo"
       - "empezar de nuevo"
+      - "reiniciar"
+      - "reiniciar dibujo"
+      - "borrar pantalla"
 
   - action: "deshacer"
     display: "↩️ Deshacer"
