@@ -1,0 +1,112 @@
+# Plan de Implementación: Voz + Filtro Parkinson + Micro:bit
+
+## Arquitectura General
+
+```mermaid
+graph TD
+    A[Micrófono del usuario] -->|Audio PCM 16kHz| B[WebSocket]
+    B -->|Streaming| C[Python Vosk Server]
+    C -->|Texto reconocido| B
+    B -->|Comando matcheado| D[Frontend JS]
+    D -->|Acción| E[Canvas / UI]
+    
+    F[Micro:bit Acelerómetro] -->|BLE/USB| D
+    D -->|Filtro Parkinson| G[Señal Suavizada]
+    G --> E
+    
+    H[commands.yaml] -->|Carga al inicio| C
+    I[Mouse / Modo Ratón] --> D
+```
+
+## Componentes a Crear/Modificar
+
+### 1. `commands.yaml` — Comandos de voz con fonética
+
+```yaml
+commands:
+  - action: "color_rojo"
+    display: "🔴 Color Rojo"
+    aliases: ["rojo", "rogo", "roco", "toro", "color rojo"]
+    
+  - action: "pincel_neon"  
+    display: "✨ Pincel Neón"
+    aliases: ["neón", "neon", "leon", "brillo", "pincel neon"]
+```
+
+Cada comando tiene múltiples `aliases` que cubren variaciones fonéticas del español (errores de reconocimiento comunes de Vosk).
+
+### 2. `vosk_server.py` — Servidor WebSocket Python
+
+- Carga el modelo `vosk-model-small-es-0.42`
+- Carga `commands.yaml` y construye un índice invertido de aliases → acciones
+- Recibe audio PCM por WebSocket desde el browser
+- Envía resultados JSON con la acción y el texto reconocido
+- Puerto: `2700`
+
+### 3. Modificaciones a `server.js`
+
+- Agregar MIME type `.yaml`
+- Sin más cambios necesarios
+
+### 4. Modificaciones a `app.js`
+
+- **Módulo de voz**: WebSocket client que captura micrófono y envía audio al servidor Vosk
+- **Ejecutor de comandos**: Recibe acciones de voz y ejecuta (cambiar color, pincel, etc.)
+- **Panel de voz en UI**: Indicador visual de micrófono activo/escuchando, último comando
+
+### 5. Modificaciones a `index.html`
+
+- **Tarjeta "Comandos de Voz"**: Toggle micrófono, indicador de estado, log de comandos
+- **Tarjeta "Perfil Parkinson"**: Sliders de ajuste de tolerancia con presets
+
+### 6. **Filtro de Temblor Parkinson** (en `app.js`)
+
+Algoritmo de filtrado en 3 capas:
+1. **Dead Zone ampliada**: Zona muerta configurable que ignora micromovimientos (50-200 mg)
+2. **Filtro de frecuencia**: Rechaza oscilaciones rápidas (4-12Hz) típicas del temblor parkinsónico
+3. **Suavizado exponencial agresivo**: EMA con factor muy bajo (0.03-0.08) para respuesta lenta
+
+Perfiles preconfigurados:
+- **Leve**: Deadzone 30, Smoothing 0.08, Freq cutoff 8Hz
+- **Moderado**: Deadzone 80, Smoothing 0.05, Freq cutoff 6Hz  
+- **Severo**: Deadzone 150, Smoothing 0.03, Freq cutoff 4Hz
+- **Personalizado**: Control total del usuario
+
+### 7. `inicio.bat` actualizado
+
+- Verifica Python y pip
+- Instala dependencias (`vosk`, `websockets`, `pyyaml`)
+- Inicia servidor Vosk en paralelo
+- Inicia servidor Node.js
+- Abre navegador
+
+## Flujo de Datos de Voz
+
+```mermaid
+sequenceDiagram
+    participant Browser
+    participant VoskServer
+    
+    Browser->>Browser: getUserMedia (mic)
+    Browser->>VoskServer: WebSocket connect ws://localhost:2700
+    loop Audio streaming
+        Browser->>VoskServer: PCM audio chunks (16kHz mono)
+        VoskServer->>VoskServer: Vosk recognizer.AcceptWaveform()
+        VoskServer-->>Browser: {"action": "color_rojo", "text": "rojo", "display": "🔴 Color Rojo"}
+    end
+    Browser->>Browser: Ejecutar acción (cambiar color, pincel, etc.)
+```
+
+## Flujo del Filtro Parkinson
+
+```mermaid
+graph LR
+    A[Señal Raw Micro:bit] --> B[Dead Zone Filter]
+    B --> C[Bandstop 4-12Hz]
+    C --> D[EMA Smoothing]
+    D --> E[Cursor Canvas]
+    
+    style B fill:#fee2e2
+    style C fill:#fef3c7
+    style D fill:#d1fae5
+```

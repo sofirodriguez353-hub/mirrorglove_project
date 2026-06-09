@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MirrorGlove: ¡Arte con Micro:bit!</title>
+  <meta name="description" content="Lienzo mágico de dibujo controlado en tiempo real mediante gestos con tu Micro:bit. ¡Pinta moviendo tu mano!">
+  <meta name="keywords" content="microbit, dibujo, niños, arte, bluetooth, gestos, pintura">
+  <!-- Fuentes amigables y redondeadas -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fredoka+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="kids-theme">
+
+  <!-- Decoraciones de fondo animadas -->
+  <div class="bubble bubble-1">⭐</div>
+  <div class="bubble bubble-2">🌈</div>
+  <div class="bubble bubble-3">✨</div>
+  <div class="bubble bubble-4">🎨</div>
+  <div class="bubble bubble-5">💫</div>
+  <div class="bubble bubble-6">🎉</div>
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header Principal (datos cargados desde config.json) -->
+    <header class="app-header">
+      <div class="logo">
+        <div class="logo-icon-wrap">
+          <i class="fa-solid fa-wand-magic-sparkles logo-icon"></i>
+        </div>
+        <div class="logo-text">
+          <h1 id="app-title">AirPaint <span class="badge" id="app-badge">Micro:bit</span></h1>
+          <p class="logo-sub" id="app-subtitle">¡Pinta con tu Micro:bit!</p>
+        </div>
+      </div>
+      <div class="connection-bar">
+        <div id="connection-status" class="status-indicator status-disconnected">
+          <span class="status-dot"></span>
+          <span class="status-text">Micro:bit Desconectado</span>
+        </div>
+        <button id="btn-connect" class="btn btn-primary">
+          <i class="fa-solid fa-bluetooth-b"></i> 📡 Conectar Bluetooth
+        </button>
+        <button id="btn-connect-usb" class="btn btn-secondary">
+          <i class="fa-solid fa-plug"></i> 🔌 Conectar USB
+        </button>
+        <button id="btn-disconnect" class="btn btn-danger hidden">
+          <i class="fa-solid fa-xmark"></i> Desconectar
+        </button>
+      </div>
+    </header>
+
+    <!-- Layout Principal -->
+    <main class="main-layout">
+      <!-- Lienzo de Dibujo -->
+      <section class="canvas-section">
+        <div class="canvas-wrapper card">
+          <canvas id="paint-canvas"></canvas>
+          <!-- Cursor virtual -->
+          <div id="virtual-cursor" class="virtual-cursor"></div>
+          <!-- Info del lienzo -->
+          <div class="canvas-info-overlay">
+            <span id="brush-indicator" class="info-badge">
+              <i class="fa-solid fa-paint-brush"></i> ¡Dibujando!
+            </span>
+            <span id="coords-indicator" class="info-badge">
+              X: 0, Y: 0
+            </span>
+            <span id="simulation-indicator" class="info-badge hidden">
+              <i class="fa-solid fa-computer-mouse"></i> 🖱️ Modo Ratón
+            </span>
+          </div>
+          <!-- Mensaje bienvenida sobre el lienzo -->
+          <div id="canvas-welcome" class="canvas-welcome">
+            <div class="welcome-icon">🎨</div>
+            <h2>¡Listo para pintar!</h2>
+            <p>Conecta tu Micro:bit o activa el <strong>Modo Ratón</strong> para empezar</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Panel Lateral Colapsable -->
+      <div class="sidebar-wrapper">
+        <button id="btn-toggle-sidebar" class="sidebar-toggle-btn" title="Mostrar/Ocultar Panel">
+          <i class="fa-solid fa-chevron-right"></i>
+        </button>
+
+        <aside class="control-aside">
+
+          <!-- Tarjeta: Pincel y Colores -->
+          <div class="card brush-controls">
+            <h2 class="card-title"><i class="fa-solid fa-palette"></i> 🖌️ Mi Pincel</h2>
+
+            <div class="control-group">
+              <label>🎨 Elige un color</label>
+              <div id="color-palette" class="color-palette">
+                <!-- Cargado desde config.json -->
+              </div>
+            </div>
+
+            <div class="control-group">
+              <label for="select-brush-mode">✨ Efecto especial</label>
+              <select id="select-brush-mode" class="select-field">
+                <option value="normal">Normal</option>
+                <option value="neon">Brillo Neon</option>
+                <option value="watercolor">Acuarela</option>
+                <option value="crayon">Crayon</option>
+                <option value="spray">Spray / Aerosol</option>
+                <option value="dots">Puntillismo</option>
+                <option value="stars">Estrellas</option>
+                <option value="mirror">Espejo (Simetria)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <div class="slider-header">
+                <label for="slider-brush-width">📏 Grosor del trazo</label>
+                <span id="brush-width-value">10px</span>
+              </div>
+              <input type="range" id="slider-brush-width" class="slider" min="1" max="50" value="10">
+            </div>
+
+            <div class="actions-row">
+              <button id="btn-clear" class="btn btn-fun btn-danger-fun">
+                <i class="fa-solid fa-trash-can"></i> 🗑️ Limpiar
+              </button>
+              <button id="btn-calibrate" class="btn btn-fun btn-secondary" title="Poner el Micro:bit plano y presionar">
+                <i class="fa-solid fa-arrows-to-dot"></i> 🎯 Calibrar
+              </button>
+            </div>
+          </div>
+
+          <!-- Tarjeta: Emociones del Dibujante -->
+          <div class="card emotions-card">
+            <h2 class="card-title"><i class="fa-solid fa-face-smile-beam"></i> 💖 Emociones del Dibujante</h2>
+            <div class="control-group">
+              <div class="toggle-switch-container">
+                <span class="toggle-label">Activar Modo Emociones</span>
+                <label class="toggle-switch" for="check-emotions">
+                  <input type="checkbox" id="check-emotions" aria-label="Modo Emociones" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <p class="emotions-desc">
+                ¡Dibuja suave para estar tranquilo o rápido para mostrar tu energía! El color y grosor cambiarán solos.
+              </p>
+            </div>
+            <div id="emotion-indicator" class="emotion-status-box">
+              😴 Modo Manual
+            </div>
+          </div>
+
+          <!-- Tarjeta: Comandos de Voz -->
+          <div class="card voice-card">
+            <h2 class="card-title"><i class="fa-solid fa-microphone"></i> 🎤 Comandos de Voz</h2>
+            <div class="control-group">
+              <div class="toggle-switch-container">
+                <span class="toggle-label">Activar Micrófono</span>
+                <label class="toggle-switch" for="check-voice">
+                  <input type="checkbox" id="check-voice" aria-label="Activar Voz" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <p class="emotions-desc">
+                Di "empezar a pintar", "dejar de pintar" o "calibrar" para dibujar sin botones. ¡También colores, pinceles o "perfil severo"!
+              </p>
+            </div>
+            <div id="voice-status" class="voice-status-box">
+              <span class="voice-status-icon">🔇</span>
+              <span class="voice-status-text">Micrófono apagado</span>
+            </div>
+            <div id="voice-partial" class="voice-partial-text"></div>
+            <div class="voice-log-container">
+              <h3>📝 Últimos Comandos</h3>
+              <div id="voice-log" class="voice-log">
+                <span class="log-placeholder">Esperando tu voz... 🤫</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta: Perfil Parkinson (Filtro de Temblor) -->
+          <div class="card parkinson-card">
+            <h2 class="card-title"><i class="fa-solid fa-hand-holding-medical"></i> 🩺 Perfil de Asistencia</h2>
+            <div class="control-group">
+              <label for="select-parkinson-profile">🎚️ Nivel de filtrado</label>
+              <select id="select-parkinson-profile" class="select-field">
+                <option value="off">⚪ Sin filtro (Normal)</option>
+                <option value="leve">🟢 Leve — Temblor ligero</option>
+                <option value="moderado">🟡 Moderado — Temblor medio</option>
+                <option value="severo">🔴 Severo — Temblor fuerte</option>
+                <option value="custom">🔧 Personalizado</option>
+              </select>
+            </div>
+            <div id="parkinson-indicator" class="parkinson-status-box">
+              ⚪ Sin filtro activo
+            </div>
+            <div id="parkinson-custom-controls" class="parkinson-custom hidden">
+              <div class="control-group">
+                <div class="slider-header">
+                  <label for="slider-pk-deadzone">🚫 Zona muerta (mg)</label>
+                  <span id="val-pk-deadzone">10</span>
+                </div>
+                <input type="range" id="slider-pk-deadzone" class="slider" min="5" max="250" step="5" value="10">
+              </div>
+              <div class="control-group">
+                <div class="slider-header">
+                  <label for="slider-pk-smoothing">🌊 Suavizado</label>
+                  <span id="val-pk-smoothing">0.12</span>
+                </div>
+                <input type="range" id="slider-pk-smoothing" class="slider" min="0.01" max="0.15" step="0.005" value="0.12">
+              </div>
+              <div class="control-group">
+                <div class="slider-header">
+                  <label for="slider-pk-freq">📊 Corte de frecuencia (Hz)</label>
+                  <span id="val-pk-freq">12</span>
+                </div>
+                <input type="range" id="slider-pk-freq" class="slider" min="2" max="15" step="0.5" value="12">
+              </div>
+            </div>
+            <p class="emotions-desc">
+              Filtra movimientos involuntarios para personas con temblor. A mayor nivel, más estable el trazo.
+            </p>
+          </div>
+
+          <!-- Tarjeta: Calibración Avanzada -->
+          <div class="card calibration-settings">
+            <h2 class="card-title"><i class="fa-solid fa-sliders"></i> ⚙️ Ajustes</h2>
+
+            <div class="control-group">
+              <div class="slider-header">
+                <label for="slider-sens-x">↔️ Sensibilidad X</label>
+                <span id="val-sens-x">3.0</span>
+              </div>
+              <input type="range" id="slider-sens-x" class="slider" min="0.5" max="10.0" step="0.1" value="3.0">
+            </div>
+
+            <div class="control-group">
+              <div class="slider-header">
+                <label for="slider-sens-y">↕️ Sensibilidad Y</label>
+                <span id="val-sens-y">3.0</span>
+              </div>
+              <input type="range" id="slider-sens-y" class="slider" min="0.5" max="10.0" step="0.1" value="3.0">
+            </div>
+
+            <div class="control-group">
+              <div class="slider-header">
+                <label for="slider-smoothing">🌊 Suavizado</label>
+                <span id="val-smoothing">0.12</span>
+              </div>
+              <input type="range" id="slider-smoothing" class="slider" min="0.01" max="0.5" step="0.01" value="0.12">
+            </div>
+
+            <div class="control-group">
+              <div class="slider-header">
+                <label for="slider-deadzone">🚫 Zona muerta (temblor)</label>
+                <span id="val-deadzone">10</span>
+              </div>
+              <input type="range" id="slider-deadzone" class="slider" min="0" max="50" step="1" value="10">
+            </div>
+
+            <div class="control-group">
+              <div class="slider-header">
+                <label for="slider-dtw-thresh">👋 Umbral gesto</label>
+                <span id="val-dtw-thresh">35.0</span>
+              </div>
+              <input type="range" id="slider-dtw-thresh" class="slider" min="15.0" max="60.0" step="0.5" value="35.0">
+            </div>
+
+            <button id="btn-save-settings" class="btn btn-fun btn-primary" class="w-full">
+              <i class="fa-solid fa-floppy-disk"></i> 💾 Guardar Ajustes
+            </button>
+          </div>
+
+          <!-- Tarjeta: Telemetría -->
+          <div class="card telemetry-card">
+            <div class="card-header-with-action">
+              <h2 class="card-title"><i class="fa-solid fa-gauge-high"></i> 📊 Sensor</h2>
+              <div class="toggle-switch-container">
+                <span class="toggle-label">🖱️ Modo Ratón</span>
+                <label class="toggle-switch" for="check-simulate">
+                  <input type="checkbox" id="check-simulate" aria-label="Simular Ratón" />
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="telemetry-grid">
+              <div class="telemetry-item">
+                <span class="telemetry-label">📐 Pitch (Y)</span>
+                <span id="val-pitch" class="telemetry-value">0°</span>
+                <div class="progress-bar-container"><div id="progress-pitch" class="progress-bar w-half"></div></div>
+              </div>
+              <div class="telemetry-item">
+                <span class="telemetry-label">📐 Roll (X)</span>
+                <span id="val-roll" class="telemetry-value">0°</span>
+                <div class="progress-bar-container"><div id="progress-roll" class="progress-bar w-half"></div></div>
+              </div>
+            </div>
+
+            <div class="telemetry-raw">
+              <div><strong>X:</strong> <span id="raw-x">0</span></div>
+              <div><strong>Y:</strong> <span id="raw-y">0</span></div>
+              <div><strong>Z:</strong> <span id="raw-z">0</span></div>
+            </div>
+
+            <div class="buttons-status">
+              <div id="indicator-btn-a" class="btn-indicator">🅰️ Botón A</div>
+              <div id="indicator-btn-b" class="btn-indicator">🅱️ Botón B</div>
+            </div>
+          </div>
+
+          <!-- Tarjeta: Gestos y Reconocimiento -->
+          <div class="card gesture-card">
+            <h2 class="card-title"><i class="fa-solid fa-hand-sparkles"></i> 👋 Gestos Mágicos</h2>
+
+            <div class="record-section">
+              <div class="control-group">
+                <label for="select-gesture-action">🎯 Acción del gesto</label>
+                <select id="select-gesture-action" class="select-field">
+                  <!-- Cargado desde config.json -->
+                </select>
+              </div>
+              <div class="record-controls">
+                <button id="btn-record" class="btn btn-record-ready">
+                  <i class="fa-solid fa-circle"></i> Grabar
+                </button>
+                <div id="recording-countdown" class="recording-countdown hidden">1.5s</div>
+              </div>
+            </div>
+
+            <div class="gesture-preview-container">
+              <label>🗺️ Trayectoria del movimiento</label>
+              <div class="preview-box">
+                <canvas id="gesture-preview-canvas"></canvas>
+              </div>
+            </div>
+
+            <div class="patterns-library">
+              <h3>📚 Gestos Guardados</h3>
+              <div id="patterns-list" class="patterns-list">
+                <div class="no-patterns">¡Aún no hay gestos! 😊<br>¡Graba tu primer movimiento!</div>
+              </div>
+            </div>
+
+            <div class="gesture-log-container">
+              <h3>📝 Gestos Reconocidos</h3>
+              <div id="gesture-log" class="gesture-log">
+                <span class="log-placeholder">Esperando tu movimiento... 🤚</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tarjeta: Créditos (cargada desde config.json) -->
+          <div class="card credits-card">
+            <h2 class="card-title"><i class="fa-solid fa-star"></i> 🌟 Creado por</h2>
+            <div id="credits-content" class="credits-content">
+              <!-- Cargado desde config.json -->
+            </div>
+          </div>
+
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal de Ayuda / Firmware -->
+  <div id="help-modal" class="modal-overlay hidden">
+    <div class="modal-content card">
+      <div class="modal-header">
+        <h2><i class="fa-solid fa-microchip"></i> 🔧 ¿Cómo configurar tu Micro:bit?</h2>
+        <button id="btn-close-help" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>Para usar el guante pintor, debes cargar el código en tu Micro:bit para que envíe datos por Bluetooth.</p>
+
+        <h3>📋 Paso 1: Copia el código</h3>
+        <p>Elige el tipo de código que quieres usar:</p>
+
+        <div class="code-editor-tabs">
+          <button class="tab-btn active" data-tab="tab-makecode-python">MakeCode Python</button>
+          <button class="tab-btn" data-tab="tab-python">MicroPython</button>
+          <button class="tab-btn" data-tab="tab-makecode">MakeCode JS</button>
+        </div>
+
+        <div id="tab-makecode-python" class="tab-content active-content">
+          <pre><code># MakeCode Python (Recomendado - Conexión Dual USB/BLE)
+conectado = False # Bandera para controlar el estado de la conexión inalámbrica
+
+def on_bluetooth_connected(): # Evento que se dispara al vincular un celular/PC
+    global conectado # Permite modificar la variable de estado
+    conectado = True # Confirma la conexión exitosa
+    basic.show_icon(IconNames.HAPPY) # Muestra cara feliz
+
+def on_bluetooth_disconnected(): # Evento que se dispara al perder la vinculación
+    global conectado # Permite modificar la variable de estado
+    conectado = False # Confirma la pérdida de señal
+    basic.show_icon(IconNames.ASLEEP) # Muestra cara dormida
+
+bluetooth.on_bluetooth_connected(on_bluetooth_connected) # Activa el "escucha" de conexión
+bluetooth.on_bluetooth_disconnected(on_bluetooth_disconnected) # Activa el "escucha" de desconexión
+
+bluetooth.start_uart_service() # Enciende el servicio de envío de texto por Bluetooth
+basic.show_icon(IconNames.ASLEEP) # Muestra el estado inicial
+
+def on_forever(): # Bucle de ejecución continua
+    x = input.acceleration(Dimension.X) # Lee la fuerza G en X
+    y = input.acceleration(Dimension.Y) # Lee la fuerza G en Y
+    z = input.acceleration(Dimension.Z) # Lee la fuerza G en Z
+
+    btn_a = 1 if input.button_is_pressed(Button.A) else 0 # Convierte el estado del botón A a 1 o 0
+    btn_b = 1 if input.button_is_pressed(Button.B) else 0 # Convierte el estado del botón B a 1 o 0
+
+    msg = "" + str(x) + "," + str(y) + "," + str(z) + "," + str(btn_a) + "," + str(btn_b) # Crea una sola cadena de texto
+
+    serial.write_line(msg) # VÍA 1 (Cable): Envía el texto directo al puerto COM
+
+    if conectado: # Solo si hay un dispositivo vinculado...
+        bluetooth.uart_write_line(msg) # VÍA 2 (Aire): Envía el texto a través de la antena Bluetooth
+
+    basic.pause(30) # Pausa de seguridad para no saturar los puertos
+
+basic.forever(on_forever) # Mantiene el código ejecutándose infinitamente</code></pre>
+        </div>
+
+        <div id="tab-python" class="tab-content">
+          <pre><code># MicroPython Estándar (Micro:bit V1/V2 - Conexión Dual)
+from microbit import *
+import bluetooth
+
+uart = bluetooth.Uart()
+uart.start()
+
+display.show(Image.ASLEEP)
+
+while True:
+    x = accelerometer.get_x()
+    y = accelerometer.get_y()
+    z = accelerometer.get_z()
+    btn_a = 1 if button_a.is_pressed() else 0
+    btn_b = 1 if button_b.is_pressed() else 0
+
+    msg = "{},{},{},{},{}".format(x, y, z, btn_a, btn_b)
+
+    # Enviar por USB Serie
+    print(msg)
+
+    # Enviar por Bluetooth si está conectado
+    if uart.is_connected():
+        display.show(Image.HAPPY)
+        uart.send(msg + "\n")
+    else:
+        display.show(Image.ASLEEP)
+
+    sleep(30)</code></pre>
+        </div>
+
+        <div id="tab-makecode" class="tab-content">
+          <pre><code>// MakeCode JS/Blocks (Conexión Dual USB/BLE)
+let conectado = false
+bluetooth.onBluetoothConnected(function () {
+    conectado = true
+    basic.showIcon(IconNames.Happy)
+})
+bluetooth.onBluetoothDisconnected(function () {
+    conectado = false
+    basic.showIcon(IconNames.Asleep)
+})
+bluetooth.startUartService()
+basic.showIcon(IconNames.Asleep)
+
+basic.forever(function () {
+    let x = input.acceleration(Dimension.X)
+    let y = input.acceleration(Dimension.Y)
+    let z = input.acceleration(Dimension.Z)
+    let btnA = input.buttonIsPressed(Button.A) ? 1 : 0
+    let btnB = input.buttonIsPressed(Button.B) ? 1 : 0
+
+    let msg = x + "," + y + "," + z + "," + btnA + "," + btnB
+
+    // Enviar por USB Serie
+    serial.writeLine(msg)
+
+    // Enviar por Bluetooth
+    if (conectado) {
+        bluetooth.uartWriteLine(msg)
+    }
+    basic.pause(30)
+})</code></pre>
+        </div>
+
+        <h3>🔗 Paso 2: Conectar</h3>
+        <p>Una vez cargado el código en la Micro:bit, presiona el botón <strong>📡 Conectar Bluetooth</strong> o <strong>🔌 Conectar USB</strong> en la parte superior. ¡Se abrirá una ventana para emparejar tu dispositivo!</p>
+
+        <h3>🎮 Paso 3: ¡A pintar!</h3>
+        <p>Usa el <strong>Botón A</strong> para activar/desactivar el pincel, y el <strong>Botón B</strong> para calibrar. Mueve la Micro:bit para mover el cursor. ¡Diviértete!</p>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-close-help-confirm" class="btn btn-primary btn-fun">🎉 ¡Entendido! ¡A pintar!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botón flotante de ayuda -->
+  <button id="btn-open-help" class="btn-floating-help" title="Ayuda y Firmware">
+    <i class="fa-solid fa-question"></i>
+  </button>
+
+  <!-- Script principal -->
+  <script src="app.js" type="module"></script>
+</body>
+</html>

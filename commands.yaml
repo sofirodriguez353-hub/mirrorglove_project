@@ -1,0 +1,344 @@
+# =============================================================================
+# Comandos de Voz para AirPaint — Reconocimiento Vosk (Español)
+# =============================================================================
+# Cada comando tiene:
+#   - action:   Identificador interno que ejecuta la lógica en el frontend
+#   - display:  Texto amigable que se muestra en la interfaz
+#   - category: Grupo lógico (color, pincel, funcion, perfil)
+#   - aliases:  Lista de variantes fonéticas que Vosk puede reconocer
+#               (incluye errores comunes de pronunciación y reconocimiento)
+# =============================================================================
+
+commands:
+  # ─────────────── COLORES ───────────────
+  - action: "color_rojo"
+    display: "🔴 Color Rojo"
+    category: "color"
+    aliases:
+      - "rojo"
+      - "rogo"
+      - "roco"
+      - "roho"
+      - "color rojo"
+      - "ponme rojo"
+      - "quiero rojo"
+
+  - action: "color_rosa"
+    display: "🩷 Color Rosa"
+    category: "color"
+    aliases:
+      - "rosa"
+      - "rosado"
+      - "rosita"
+      - "color rosa"
+      - "ponme rosa"
+      - "quiero rosa"
+
+  - action: "color_morado"
+    display: "🟣 Color Morado"
+    category: "color"
+    aliases:
+      - "morado"
+      - "violeta"
+      - "púrpura"
+      - "purpura"
+      - "lila"
+      - "color morado"
+      - "ponme morado"
+
+  - action: "color_verde"
+    display: "🟢 Color Verde"
+    category: "color"
+    aliases:
+      - "verde"
+      - "berde"
+      - "color verde"
+      - "ponme verde"
+      - "quiero verde"
+
+  - action: "color_amarillo"
+    display: "🟡 Color Amarillo"
+    category: "color"
+    aliases:
+      - "amarillo"
+      - "amarío"
+      - "color amarillo"
+      - "ponme amarillo"
+      - "quiero amarillo"
+
+  - action: "color_azul"
+    display: "🔵 Color Azul"
+    category: "color"
+    aliases:
+      - "azul"
+      - "asul"
+      - "color azul"
+      - "ponme azul"
+      - "quiero azul"
+
+  - action: "color_naranja"
+    display: "🟠 Color Naranja"
+    category: "color"
+    aliases:
+      - "naranja"
+      - "anaranjado"
+      - "color naranja"
+      - "ponme naranja"
+
+  - action: "color_blanco"
+    display: "⚪ Color Blanco"
+    category: "color"
+    aliases:
+      - "blanco"
+      - "blanko"
+      - "color blanco"
+      - "borrador"
+      - "goma"
+
+  - action: "color_negro"
+    display: "⚫ Color Negro"
+    category: "color"
+    aliases:
+      - "negro"
+      - "oscuro"
+      - "color negro"
+      - "ponme negro"
+
+  # ─────────────── PINCELES ───────────────
+  - action: "pincel_normal"
+    display: "🖌️ Pincel Normal"
+    category: "pincel"
+    aliases:
+      - "normal"
+      - "pincel normal"
+      - "pincel básico"
+      - "básico"
+      - "basico"
+      - "modo normal"
+
+  - action: "pincel_neon"
+    display: "✨ Pincel Neón"
+    category: "pincel"
+    aliases:
+      - "neón"
+      - "neon"
+      - "brillo"
+      - "brillante"
+      - "pincel neón"
+      - "modo neón"
+      - "luz"
+
+  - action: "pincel_acuarela"
+    display: "💧 Pincel Acuarela"
+    category: "pincel"
+    aliases:
+      - "acuarela"
+      - "aguarela"
+      - "agua"
+      - "pincel acuarela"
+      - "modo acuarela"
+
+  - action: "pincel_crayon"
+    display: "🖍️ Pincel Crayón"
+    category: "pincel"
+    aliases:
+      - "crayón"
+      - "crayon"
+      - "crayola"
+      - "lápiz"
+      - "lapiz"
+      - "pincel crayón"
+
+  - action: "pincel_spray"
+    display: "🎨 Pincel Spray"
+    category: "pincel"
+    aliases:
+      - "spray"
+      - "aerosol"
+      - "espray"
+      - "pincel spray"
+      - "modo spray"
+
+  - action: "pincel_puntos"
+    display: "🔵 Pincel Puntos"
+    category: "pincel"
+    aliases:
+      - "puntos"
+      - "puntillismo"
+      - "círculos"
+      - "circulos"
+      - "pincel puntos"
+
+  - action: "pincel_estrellas"
+    display: "⭐ Pincel Estrellas"
+    category: "pincel"
+    aliases:
+      - "estrellas"
+      - "estrella"
+      - "pincel estrellas"
+      - "modo estrellas"
+
+  - action: "pincel_espejo"
+    display: "🪞 Pincel Espejo"
+    category: "pincel"
+    aliases:
+      - "espejo"
+      - "simetría"
+      - "simetria"
+      - "reflejo"
+      - "pincel espejo"
+      - "modo espejo"
+
+  # ─────────────── FUNCIONES ───────────────
+  - action: "limpiar"
+    display: "🗑️ Limpiar Lienzo"
+    category: "funcion"
+    aliases:
+      - "limpiar"
+      - "limpiar lienzo"
+      - "borrar"
+      - "borrar todo"
+      - "limpiar todo"
+      - "nuevo"
+      - "empezar de nuevo"
+
+  - action: "deshacer"
+    display: "↩️ Deshacer"
+    category: "funcion"
+    aliases:
+      - "deshacer"
+      - "atrás"
+      - "atras"
+      - "volver"
+      - "undo"
+
+  - action: "calibrar"
+    display: "🎯 Calibrar Sensor"
+    category: "funcion"
+    aliases:
+      - "calibrar"
+      - "calibración"
+      - "calibracion"
+      - "centrar"
+      - "centro"
+      - "calibrar sensor"
+      - "calibrar microbit"
+      - "calibra"
+
+  - action: "grosor_mas"
+    display: "➕ Más Grosor"
+    category: "funcion"
+    aliases:
+      - "más grueso"
+      - "mas grueso"
+      - "aumentar"
+      - "más grande"
+      - "mas grande"
+      - "grueso"
+      - "aumentar grosor"
+
+  - action: "grosor_menos"
+    display: "➖ Menos Grosor"
+    category: "funcion"
+    aliases:
+      - "más fino"
+      - "mas fino"
+      - "reducir"
+      - "más pequeño"
+      - "mas pequeño"
+      - "fino"
+      - "delgado"
+      - "reducir grosor"
+
+  - action: "emociones_on"
+    display: "💖 Activar Emociones"
+    category: "funcion"
+    aliases:
+      - "activar emociones"
+      - "emociones"
+      - "modo emociones"
+      - "sentimientos"
+      - "emociones del dibujante"
+
+  - action: "emociones_off"
+    display: "😴 Desactivar Emociones"
+    category: "funcion"
+    aliases:
+      - "desactivar emociones"
+      - "sin emociones"
+      - "modo manual"
+      - "manual"
+      - "no emociones"
+      - "emociones off"
+
+  - action: "guardar"
+    display: "💾 Guardar Dibujo"
+    category: "funcion"
+    aliases:
+      - "guardar"
+      - "salvar"
+      - "exportar"
+      - "descargar"
+      - "guardar dibujo"
+
+  - action: "pintar_on"
+    display: "✏️ Empezar a Pintar"
+    category: "funcion"
+    aliases:
+      - "pintar"
+      - "dibuja"
+      - "dibujar"
+      - "trazo"
+      - "empezar a pintar"
+      - "empezar"
+      - "pinta"
+      - "vamos a pintar"
+
+  - action: "pintar_off"
+    display: "🛑 Dejar de Pintar"
+    category: "funcion"
+    aliases:
+      - "parar"
+      - "detener"
+      - "dejar de pintar"
+      - "soltar"
+      - "no pintar"
+      - "alto"
+
+  # ─────────────── PERFILES PARKINSON ───────────────
+  - action: "perfil_leve"
+    display: "🟢 Perfil Leve"
+    category: "perfil"
+    aliases:
+      - "perfil leve"
+      - "temblor leve"
+      - "suave"
+      - "poco temblor"
+
+  - action: "perfil_moderado"
+    display: "🟡 Perfil Moderado"
+    category: "perfil"
+    aliases:
+      - "perfil moderado"
+      - "temblor moderado"
+      - "medio"
+      - "intermedio"
+
+  - action: "perfil_severo"
+    display: "🔴 Perfil Severo"
+    category: "perfil"
+    aliases:
+      - "perfil severo"
+      - "temblor severo"
+      - "fuerte"
+      - "mucho temblor"
+
+  - action: "perfil_desactivar"
+    display: "⚪ Sin Filtro"
+    category: "perfil"
+    aliases:
+      - "sin filtro"
+      - "desactivar filtro"
+      - "normal"
+      - "sin temblor"
+      - "quitar filtro"

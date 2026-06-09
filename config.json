@@ -1,0 +1,75 @@
+{
+  "app": {
+    "name": "🎨 MirrorGlove",
+    "subtitle": "¡Pinta con tu Micro:bit!",
+    "version": "v1.1",
+    "badge": "Micro:bit",
+    "description": "Lienzo mágico controlado con gestos 🌟",
+    "authors": ["Sofía Rodríguez", "Wilmary León", "Verónica Brito"],
+    "school": "U.E Doña Menca de Leoni",
+    "year": "2026",
+    "theme": "kids"
+  },
+  "bluetooth": {
+    "serviceUuid": "6e400001-b5a3-f393-e0a9-e50e24dcca9e",
+    "txCharacteristicUuid": "6e400003-b5a3-f393-e0a9-e50e24dcca9e",
+    "rxCharacteristicUuid": "6e400002-b5a3-f393-e0a9-e50e24dcca9e",
+    "reconnectIntervalMs": 3000
+  },
+  "serial": {
+    "baudRate": 115200
+  },
+  "drawing": {
+    "defaultColor": "#ff6eb4",
+    "defaultWidth": 10,
+    "minWidth": 1,
+    "maxWidth": 50,
+    "canvasWidth": 1920,
+    "canvasHeight": 1080,
+    "smoothingFactor": 0.12,
+    "sensitivityX": 3.0,
+    "sensitivityY": 3.0,
+    "tiltThreshold": 10,
+    "cursorColor": "#a78bfa"
+  },
+  "patterns": {
+    "sampleIntervalMs": 30,
+    "recordingDurationMs": 1500,
+    "dtwThreshold": 35.0,
+    "actionMappings": [
+      {
+        "patternName": "clear",
+        "action": "clear_canvas",
+        "label": "🗑️ Limpiar Lienzo"
+      },
+      {
+        "patternName": "color",
+        "action": "next_color",
+        "label": "🌈 Siguiente Color"
+      },
+      {
+        "patternName": "brush_size",
+        "action": "toggle_brush_size",
+        "label": "🖌️ Cambiar Grosor"
+      },
+      {
+        "patternName": "toggle_draw",
+        "action": "toggle_drawing_state",
+        "label": "⏸️ Pausar/Reanudar"
+      }
+    ]
+  },
+  "ui": {
+    "theme": "kids-colorful",
+    "availableColors": [
+      "#ff6eb4",
+      "#a78bfa",
+      "#34d399",
+      "#fbbf24",
+      "#f87171",
+      "#60a5fa",
+      "#fb923c",
+      "#ffffff"
+    ]
+  }
+}
